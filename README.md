@@ -7,6 +7,7 @@ A lightweight Python script for scanning devices on your local network. This too
 - Scans a specified subnet (e.g., `/24`) for active devices
 - Uses socket and IP libraries to detect reachable IPs
 - Prints out live IPs for further inspection or messaging
+- Discover devices via its vendors using public API from [text](https://macvendors.com/). Make sure to use your own token if you choose this option to work with!
 
 ## 🚀 How to Use
 
