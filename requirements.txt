@@ -1,0 +1,9 @@
+socket
+ipaddress
+subprocess
+threading
+re
+time
+os
+dotenv
+requests

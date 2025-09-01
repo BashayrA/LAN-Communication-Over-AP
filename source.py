@@ -8,9 +8,30 @@ import subprocess
 import threading
 import re
 import time
+import requests
+from dotenv import load_dotenv
+import os
 
 # Get local IP of the device wanting to communicate and subnet
 # you can do this in many ways I'm going to use one and comment the other
+
+def configure():
+    '''set a proper configuration'''
+    load_dotenv()
+
+def get_vendor(mac: str, token) -> str:
+    '''sending mac address to Vendor API to get the type of the device discovered via its IP'''
+    url = f"https://api.macvendors.com/{mac}"
+    headers = {"Authorization": f"Bearer {token}"}
+    
+    response = requests.get(url, headers=headers)
+    
+    if response.status_code == 200:
+        return response.text
+    else:
+        return "Vendor not found / Request failed"
+# this method uses public API and requires a registration which I think its a little bit exposed to share unique info with.
+# so i will only send the first 6 digits
 
 def get_local_ip():
     '''Option 1: creating a socket to connect to a public IP so that the 
@@ -49,7 +70,12 @@ def ping(ip):
             print(f"[+] Active: {ip}")
             break
 
+
+# main
+
 if __name__ == '__main__':
+    
+    token = os.getenv("token")
     
     local_ip = get_local_ip()
 
@@ -63,4 +89,5 @@ if __name__ == '__main__':
         threading.Thread(target=ping, args=(ip,)).start()
     end = time.perf_counter()
     
-    print(f"Finished Scanning succefully. Duration: {(end - start):.02f}s")    
+    print(f"Finished Scanning succefully. Duration: {(end - start):.02f}s")
+
