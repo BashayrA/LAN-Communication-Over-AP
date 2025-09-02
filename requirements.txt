@@ -7,3 +7,5 @@ time
 os
 dotenv
 requests
+scapy
+platform

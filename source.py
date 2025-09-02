@@ -11,6 +11,8 @@ import time
 import requests
 from dotenv import load_dotenv
 import os
+from scapy.all import *
+import platform
 
 # Get local IP of the device wanting to communicate and subnet
 # you can do this in many ways I'm going to use one and comment the other
@@ -40,14 +42,11 @@ def get_local_ip():
 
     conn = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # UDP connection
     conn.connect(('8.8.8.8', 80))
-
     local_ip = conn.getsockname()[0]
 
-    # option 1 ended ;>
+    # Option 1 ended ;>
 
-    # '''Option 2: using subprocess to get the IP address from the 
-    #     command and depending on the system 
-    #     you can use the right command'''
+    # # Option 2: using subprocess to get the IP address
 
     # result = subprocess.run(['ip','addr'], capture_output=True, text=True)# use 'ipconfig' for windows
     # ip_pattern = re.compile(r"\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b")
@@ -58,13 +57,28 @@ def get_local_ip():
     #         break
 
     # # Option 2 ended ;>
+
+    # Option 3: sending ARP requests and recieving the local ip and mac addr
+    # arp_req = Ether(dst='ff:ff:ff:ff:ff:ff')/ARP(pdst='8.8.8.8', hwdst='ff:ff:ff:ff:ff:ff') #consider 8.8.8.8 a dummy ipaddr
+    # arp_req.show()
+    # local_ip = arp_req.psrc
+    # local_mac = arp_req.hwsrc
+    
+    # Option 3 ended ;>
+    
     return local_ip
 
 # Define ping function
 def ping(ip):
     '''send pings (ICMP) commands to detect active ips two times in case of rejection the first time'''
+    cmd = []
+    if platform.system().lower() == 'windows':
+        cmd = ['ping', '-n', '1', '-w', '1000', str(ip)]
+    else:
+        cmd = ['ping', '-c', '1', '-W', '1', str(ip)]
+
     for _ in range(2):
-        result = subprocess.run(['ping', '-c', '1', '-W', '1', str(ip)],
+        result = subprocess.run(cmd,
                                 stdout=subprocess.DEVNULL)
         if result.returncode == 0:
             print(f"[+] Active: {ip}")
